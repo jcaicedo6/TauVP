@@ -149,18 +149,13 @@ def dNVP(s, Fv, A1, A2, A3, FT1, FT2, FT3, mV, mP, epshR, epshT, Vckm):
 def A0(s):
     return 0
 
-def A0OmegaK(s):
-    return 0
-def A0RhoK(s):
-    return 0
-def A0KsPi(s):
-    return 0
-
 # For tau->Omega+Pi+nu
 print( BRVP(Fv=FF.FV,A1=A0,A2=A0,A3=A0,FT1=FF.FT1,FT2=FF.FT2,FT3=FF.FT3,mV=cons.mOmega,mP=cons.mPi,epshR=0.0,epshT=0.0,Vckm=Vud) )
 # For tau->Omega+K+nu
-print( BRVP(Fv=FF.FVOmegaK,A1=FF.A1OmegaK,A2=FF.A2OmegaK,A3=FF.A3OmegaK,FT1=FF.FT1OmegaK,FT2=FF.FT2OmegaK,FT3=FF.FT3OmegaK,mV=cons.mOmega,mP=cons.mK,epshR=0.0,epshT=0.0,Vckm=Vus) )
+print( BRVP(Fv=FF.FVOmegaK,A1=FF.A1OmegaK,A2=FF.A2OmegaK,A3=FF.A3OmegaK,FT1=FF.FT1OmegaK,FT2=FF.FT2OmegaK,FT3=FF.FT3OmegaK,mV=cons.mOmega,mP=cons.mK,epshR=0,epshT=0,Vckm=Vus) )
 # For tau->Rho+K+nu
-print( BRVP(Fv=FF.FVRhoK,A1=FF.A1RhoK,A2=FF.A2RhoK,A3=FF.A3RhoK,FT1=FF.FT1RhoK,FT2=FF.FT2RhoK,FT3=FF.FT3RhoK,mV=cons.mRho,mP=cons.mK,epshR=0.0,epshT=0.0,Vckm=Vus) )
+print( BRVP(Fv=FF.FVRhoK,A1=FF.A1RhoK,A2=FF.A2RhoK,A3=FF.A3RhoK,FT1=FF.FT1RhoK,FT2=FF.FT2RhoK,FT3=FF.FT3RhoK,mV=cons.mRho,mP=cons.mK,epshR=0,epshT=0,Vckm=Vus) )
 # For tau->Ks+Pi+nu
-print( BRVP(Fv=FF.FVKsPi,A1=FF.A1KsPi,A2=FF.A2KsPi,A3=FF.A3KsPi,FT1=FF.FT1KsPi,FT2=FF.FT2KsPi,FT3=FF.FT3KsPi,mV=cons.mKs,mP=cons.mPi,epshR=0.0,epshT=0.0,Vckm=Vus) )
+print( BRVP(Fv=FF.FVKsPi,A1=FF.A1KsPi,A2=FF.A2KsPi,A3=FF.A3KsPi,FT1=FF.FT1KsPi,FT2=FF.FT2KsPi,FT3=FF.FT3KsPi,mV=cons.mKs,mP=cons.mPi,epshR=0,epshT=0,Vckm=Vus) )
+# For tau->Ks+K+nu
+print( BRVP(Fv=FF.FVKsK,A1=FF.A1KsK,A2=FF.A2KsK,A3=FF.A3KsK,FT1=FF.FT1KsK,FT2=FF.FT2KsK,FT3=FF.FT3KsK,mV=cons.mKs,mP=cons.mK,epshR=0,epshT=0,Vckm=Vud) )

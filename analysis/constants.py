@@ -36,6 +36,7 @@ mEta=.547862
 mK1L=1.272
 #mK1H=1.403
 mK1H=1.402
+ma1=1.260
 GammaRho=.170
 #GammaRho=.1474
 GammaRhoprime=.4
@@ -46,6 +47,7 @@ Gamma0Ksp=GammaKsp
 #Gamma0K1L=.101
 Gamma0K1L=.090
 Gamma0K1H=.174
+Gamma0a1=.5
 
 d12=-0.0308
 
