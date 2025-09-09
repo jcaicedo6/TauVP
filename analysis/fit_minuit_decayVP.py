@@ -10,6 +10,7 @@ import FF
 import constants as cons
 
 Vus = 0.22534  # CKM element
+Vud = 0.97373
 
 # Load data from file
 df = pd.read_csv('InvM_OmegaK.txt', sep='\s+', header=0)
@@ -26,8 +27,8 @@ bin_edges[1:-1] = (x_data_omegaK[:-1] + x_data_omegaK[1:]) / 2
 bin_edges[0] = x_data_omegaK[0] - (bin_edges[1] - x_data_omegaK[0])
 bin_edges[-1] = x_data_omegaK[-1] + (x_data_omegaK[-1] - bin_edges[-2])
 
-br_exp_values = np.array([4.1e-4, 1.4e-3, 2.2e-3])  # BR: OmegaK, RhoK, K*Pi
-br_exp_errors = np.array([0.9e-4, 0.5e-3, 0.5e-3])
+br_exp_values = np.array([4.1e-4, 1.4e-3, 2.2e-3, 2.1e-3])  # BR: OmegaK, RhoK, K*Pi, K*K
+br_exp_errors = np.array([0.9e-4, 0.5e-3, 0.5e-3, 0.4e-3])
 
 # Integration function
 def integrate_dgamma(m, epshR, epshT, Fv, A1, A2, A3, FT1, FT2, FT3, mV, mP, Vckm):
@@ -73,15 +74,19 @@ def combined_nll_binned(epshR, epshT):
     br3 = dVP.BRVP(Fv=FF.FVKsPi, A1=FF.A1KsPi, A2=FF.A2KsPi, A3=FF.A3KsPi,
                    FT1=FF.FT1KsPi, FT2=FF.FT2KsPi, FT3=FF.FT3KsPi,
                    mV=cons.mKs, mP=cons.mPi, epshR=epshR, epshT=epshT, Vckm=Vus)
+    br4 = dVP.BRVP(Fv=FF.FVKsK, A1=FF.A1KsK, A2=FF.A2KsK, A3=FF.A3KsK,
+                   FT1=FF.FT1KsK, FT2=FF.FT2KsK, FT3=FF.FT3KsK,
+                   mV=cons.mKs, mP=cons.mK, epshR=epshR, epshT=epshT, Vckm=Vud)
 
     br_chi2 = ((br1 - br_exp_values[0]) / br_exp_errors[0])**2 + \
               ((br2 - br_exp_values[1]) / br_exp_errors[1])**2 + \
-              ((br3 - br_exp_values[2]) / br_exp_errors[2])**2
+              ((br3 - br_exp_values[2]) / br_exp_errors[2])**2  + \
+              ((br4 - br_exp_values[3]) / br_exp_errors[3])**2
 
     total_nll = mass_nll + br_chi2
 
     print(f"mass_nll={mass_nll:.2f}, total_nll={total_nll:.2f}, epshR={epshR:.4f}, epshT={epshT:.4f}")
-    print(f"BRs: br1={br1:.2e}, br2={br2:.2e}, br3={br3:.2e}")
+    print(f"BRs: br1={br1:.2e}, br2={br2:.2e}, br3={br3:.2e}, br4={br4:.2e}")
 
     return total_nll
 
@@ -89,7 +94,7 @@ print("\n--- Running iminuit Binned Minimization ---")
 
 m = Minuit(combined_nll_binned, epshR=0.05, epshT=0.01)
 m.limits['epshR'] = (-2, 2)
-m.limits['epshT'] = (-2, 2)
+m.limits['epshT'] = (0, 2)
 m.errordef = Minuit.LIKELIHOOD
 
 m.migrad()
@@ -115,9 +120,13 @@ br2_fit = dVP.BRVP(Fv=FF.FVRhoK, A1=FF.A1RhoK, A2=FF.A2RhoK, A3=FF.A3RhoK,
 br3_fit = dVP.BRVP(Fv=FF.FVKsPi, A1=FF.A1KsPi, A2=FF.A2KsPi, A3=FF.A3KsPi,
                    FT1=FF.FT1KsPi, FT2=FF.FT2KsPi, FT3=FF.FT3KsPi,
                    mV=cons.mKs, mP=cons.mPi, epshR=epshR_fit, epshT=epshT_fit, Vckm=Vus)
+br4_fit = dVP.BRVP(Fv=FF.FVKsK, A1=FF.A1KsK, A2=FF.A2KsK, A3=FF.A3KsK,
+                   FT1=FF.FT1KsK, FT2=FF.FT2KsK, FT3=FF.FT3KsK,
+                   mV=cons.mKs, mP=cons.mK, epshR=epshR_fit, epshT=epshT_fit, Vckm=Vud)
 print(f"BR1: Fit = {br1_fit:.4e}, Exp = {br_exp_values[0]:.4e} ± {br_exp_errors[0]:.4e}")
 print(f"BR2: Fit = {br2_fit:.4e}, Exp = {br_exp_values[1]:.4e} ± {br_exp_errors[1]:.4e}")
 print(f"BR3: Fit = {br3_fit:.4e}, Exp = {br_exp_values[2]:.4e} ± {br_exp_errors[2]:.4e}")
+print(f"BR4: Fit = {br4_fit:.4e}, Exp = {br_exp_values[3]:.4e} ± {br_exp_errors[3]:.4e}")
 
 epshR_fit, epshT_fit = m.values['epshR'], m.values['epshT']
 
@@ -128,7 +137,7 @@ expected_fit = expected_counts_per_bin(epshR_fit, epshT_fit)
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
 # Branching Ratios plot
-ax1.errorbar([0, 1, 2], br_exp_values, yerr=br_exp_errors, fmt='bo', label='Experimental', capsize=5)
+ax1.errorbar([0, 1, 2, 3], br_exp_values, yerr=br_exp_errors, fmt='bo', label='Experimental', capsize=5)
 br_fit = [
     dVP.BRVP(Fv=FF.FVOmegaK, A1=FF.A1OmegaK, A2=FF.A2OmegaK, A3=FF.A3OmegaK,
              FT1=FF.FT1OmegaK, FT2=FF.FT2OmegaK, FT3=FF.FT3OmegaK,
@@ -138,11 +147,14 @@ br_fit = [
              mV=cons.mRho, mP=cons.mK, epshR=epshR_fit, epshT=epshT_fit, Vckm=Vus),
     dVP.BRVP(Fv=FF.FVKsPi, A1=FF.A1KsPi, A2=FF.A2KsPi, A3=FF.A3KsPi,
              FT1=FF.FT1KsPi, FT2=FF.FT2KsPi, FT3=FF.FT3KsPi,
-             mV=cons.mKs, mP=cons.mPi, epshR=epshR_fit, epshT=epshT_fit, Vckm=Vus)
+             mV=cons.mKs, mP=cons.mPi, epshR=epshR_fit, epshT=epshT_fit, Vckm=Vus),
+    dVP.BRVP(Fv=FF.FVKsK, A1=FF.A1KsK, A2=FF.A2KsK, A3=FF.A3KsK,
+             FT1=FF.FT1KsK, FT2=FF.FT2KsK, FT3=FF.FT3KsK,
+             mV=cons.mKs, mP=cons.mK, epshR=epshR_fit, epshT=epshT_fit, Vckm=Vud)
 ]
-ax1.plot([0, 1, 2], br_fit, 'rs', label='Fit')
-ax1.set_xticks([0, 1, 2])
-ax1.set_xticklabels([r"$\tau \to \omega K$", r"$\tau \to \rho K$", r"$\tau \to K^* \pi$"])
+ax1.plot([0, 1, 2, 3], br_fit, 'rs', label='Fit')
+ax1.set_xticks([0, 1, 2, 3])
+ax1.set_xticklabels([r"$\tau \to \omega K$", r"$\tau \to \rho K$", r"$\tau \to K^* \pi$", r"$\tau \to K^* K$"])
 ax1.set_ylabel('Branching Ratio')
 ax1.set_title('Branching Ratios: Experimental vs. Fit')
 ax1.legend()
